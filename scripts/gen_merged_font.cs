@@ -31,7 +31,10 @@ static bool IsTag(ReadOnlySpan<char> name)
     && cp is (>= 0xE0061 and <= 0xE007A);
 static bool IsRegInd(ReadOnlySpan<char> name)
     => name.StartsWith('u') && int.TryParse(name[1..], NumberStyles.HexNumber, null, out var cp)
-    && cp is 0x1f3f4 or (>= 0x1f1e6 and <= 0x1f1ff);
+    && cp is (>= 0x1f1e6 and <= 0x1f1ff);
+static bool IsWavingFlag(ReadOnlySpan<char> name)
+    => name.StartsWith('u') && int.TryParse(name[1..], NumberStyles.HexNumber, null, out var cp)
+    && cp is 0x1f3f4;
 
 int idCounter = sglyphorder.Elements()
     .Select(n => (int)n.Attribute("id")!).Max() + 1;
@@ -41,7 +44,7 @@ foreach (var glyphord in tglyphorder.Elements()) {
     string oldName = glyphord.Attribute("name")!.Value;
 
     // Don't redefine existing character ids
-    if (oldName is ".notdef" or "space" || IsRegInd(oldName)) continue;
+    if (oldName is ".notdef" or "space" || IsRegInd(oldName) || IsWavingFlag(oldName)) continue;
     if (oldName.StartsWith('u') && sglyphorder.Elements().Any(x => x.Attribute("name")!.Value == oldName)) continue;
 
     var newId = idCounter++;
@@ -58,7 +61,7 @@ foreach (var glyphord in tglyphorder.Elements()) {
 foreach (var glyphord in bwglyphorder.Elements()) {
     string oldName = glyphord.Attribute("name")!.Value;
 
-    if (oldName is ".notdef" or "space" || IsRegInd(oldName) || IsTag(oldName)) continue;
+    if (oldName is ".notdef" or "space" || IsRegInd(oldName) || IsWavingFlag(oldName) || IsTag(oldName)) continue;
     if (oldName.StartsWith('u') && sglyphorder.Elements().Any(x => x.Attribute("name")!.Value == oldName)) continue;
 
     var newId = idCounter++;
@@ -94,7 +97,7 @@ foreach (var ttglyph in tglyf.Elements()) {
 // Copy B&W glyphs (only flag glyphs)
 foreach (var ttglyph in bwglyf.Elements()) {
     string name = ttglyph.Attribute("name")!.Value;
-    if (name is ".notdef" or "space" || IsRegInd(name) || IsTag(name)) continue;
+    if (name is ".notdef" or "space" || IsRegInd(name) || IsWavingFlag(name) || IsTag(name)) continue;
     name = mapBwNames[name];
 
     var clone = new XElement(ttglyph);
@@ -130,7 +133,7 @@ foreach (var mtx in thmtx.Elements()) {
 // Copy metrics for B&W (only flag glyphs)
 foreach (var mtx in bwhmtx.Elements()) {
     string? name = mapBwNames.TryGetValue(mtx.Attribute("name")!.Value, out var xx) ? xx : null;
-    if (name is null or ".notdef" or "space" || IsTag(name) || IsRegInd(name)) continue;
+    if (name is null or ".notdef" or "space" || IsRegInd(name) || IsWavingFlag(name) || IsTag(name)) continue;
 
     var clone = new XElement(mtx);
     clone.SetAttributeValue("name", name);
@@ -336,7 +339,7 @@ var sBaseGlyphRecordCount = sBaseGlyphRecords.Elements().Count();
 var sLayerRecordCount = sLayerRecords.Elements().Count();
 
 foreach (var (glyph, layers) in tColorGlyphs) {
-    if (glyph is ".notdef" or "space" || IsTag(glyph) || IsRegInd(glyph)) throw new Exception();
+    if (glyph is ".notdef" or "space" || IsRegInd(glyph) || IsWavingFlag(glyph) || IsTag(glyph)) throw new Exception();
 
     sBaseGlyphRecords.Add(new XElement("BaseGlyphRecord", [
         new XAttribute("index", sBaseGlyphRecordCount++),
@@ -367,7 +370,7 @@ var sBaseGlyphCount = sBaseGlyphList.Elements().Count();
 var sLayerCount = sLayerList.Elements().Count();
 
 foreach (var (glyph, layers) in tColorGlyphs) {
-    if (glyph is ".notdef" or "space" || IsTag(glyph) || IsRegInd(glyph)) throw new Exception();
+    if (glyph is ".notdef" or "space" || IsRegInd(glyph) || IsWavingFlag(glyph) || IsTag(glyph)) throw new Exception();
 
     sBaseGlyphList.Add(new XElement("BaseGlyphPaintRecord", [
         new XAttribute("index", sBaseGlyphCount++),
