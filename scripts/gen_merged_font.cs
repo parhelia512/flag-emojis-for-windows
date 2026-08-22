@@ -328,7 +328,7 @@ foreach (var colorGlyph in tbaseglyphrecs) {
     ));
 }
 
-// Write layers from COLRv0 to COLRv1's LayerRecordArray
+// Write COLRv0's BaseGlyphRecordArray and LayerRecordArray
 
 var sBaseGlyphRecords = sdoc.Root!.Element("COLR")!.Element("BaseGlyphRecordArray")!;
 var sLayerRecords = sdoc.Root!.Element("COLR")!.Element("LayerRecordArray")!;
@@ -352,6 +352,55 @@ foreach (var (glyph, layers) in tColorGlyphs) {
             new XElement("PaletteIndex", new XAttribute("value", mapPaletteEntries[colorId])),
         ]));
     }
+}
+
+// COLRv1 shouldn't be necessary because COLRv0 is present, but not all engines implement COLR
+// correctly and may freeze, break and crash if a COLRv1 font glyph only has COLRv0 data.
+// (see https://github.com/Chasmical/flag-emojis-for-windows/issues/16)
+//
+// Write COLRv1's BaseGlyphList and LayerRecordList
+
+var sBaseGlyphList = sdoc.Root!.Element("COLR")!.Element("BaseGlyphList")!;
+var sLayerList = sdoc.Root!.Element("COLR")!.Element("LayerList")!;
+var sClipList = sdoc.Root!.Element("COLR")!.Element("ClipList")!;
+var sBaseGlyphCount = sBaseGlyphList.Elements().Count();
+var sLayerCount = sLayerList.Elements().Count();
+
+foreach (var (glyph, layers) in tColorGlyphs) {
+    if (glyph is ".notdef" or "space" || IsTag(glyph) || IsRegInd(glyph)) throw new Exception();
+
+    sBaseGlyphList.Add(new XElement("BaseGlyphPaintRecord", [
+        new XAttribute("index", sBaseGlyphCount++),
+        new XElement("BaseGlyph", new XAttribute("value", mapNames[glyph])),
+        new XElement("Paint", [
+            new XAttribute("Format", 1),
+            new XElement("NumLayers", new XAttribute("value", layers.Count)),
+            new XElement("FirstLayerIndex", new XAttribute("value", sLayerCount)),
+        ]),
+    ]));
+
+    foreach (var (colorId, glyphName) in layers) {
+        sLayerList.Add(new XElement("Paint", [
+            new XAttribute("index", sLayerCount++),
+            new XAttribute("Format", 10), // PaintGlyph
+            new XElement("Paint", [
+                new XAttribute("Format", 2),
+                new XElement("PaletteIndex", new XAttribute("value", mapPaletteEntries[colorId])),
+                new XElement("Alpha", new XAttribute("value", "1.0")),
+            ]),
+            new XElement("Glyph", new XAttribute("value", mapNames[glyphName])),
+        ]));
+    }
+
+    // Clip boxes should be optional, but not all font engines know that (e.g. QtWebEngine).
+    // (see https://github.com/Chasmical/flag-emojis-for-windows/issues/16)
+
+    var clip = sClipList.Elements().First(clip => {
+        // Use the clip box of ⭕, which should be large enough
+        return clip.Elements("Glyph").Any(x => x.Attribute("value")!.Value is "uni2B55");
+    });
+
+    clip.Add(new XElement("Glyph", new XAttribute("value", mapNames[glyph])));
 }
 
 
@@ -424,8 +473,8 @@ foreach (var lookup in bwlookups.Elements()) {
 
 
 
-// Also make the regional indicator symbols' widths the same value
-// as a workaround for VSCode's xterm.js terminal (see issue #13).
+// Make the regional indicator symbols the same width as a workaround for VSCode's xterm.js.
+// (see https://github.com/Chasmical/flag-emojis-for-windows/issues/13)
 foreach (var mtx in shmtx.Elements()) {
     string name = mtx.Attribute("name")!.Value;
     if (IsRegInd(name)) {
