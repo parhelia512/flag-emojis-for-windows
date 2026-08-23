@@ -42,12 +42,12 @@ function FormatBytes($bytes, $format = "{0:N1} {1}") {
 }
 function DownloadFile($url, $target) {
     try {
-        $client = [System.Net.Http.HttpClient]::new()
-        $client.Timeout = New-TimeSpan -Seconds 15
+        $request = [System.Net.HttpWebRequest]::Create($url)
+        $request.Timeout = 15000 # 15s
 
-        $response = $client.GetAsync($url, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead).Result
-        $totalLength = $response.Content.Headers.ContentLength
-        $responseStream = $response.Content.ReadAsStreamAsync().Result
+        $response = $request.GetResponse()
+        $totalLength = $response.ContentLength
+        $responseStream = $response.GetResponseStream()
         $targetStream = [System.IO.File]::Create($target)
 
         # 1 MB buffer should be good for a 13 MB font file
@@ -73,7 +73,6 @@ function DownloadFile($url, $target) {
     finally {
         if ($responseStream) { $responseStream.Dispose() }
         if ($targetStream) { $targetStream.Dispose() }
-        if ($client) { $client.Dispose() }
     }
 }
 
