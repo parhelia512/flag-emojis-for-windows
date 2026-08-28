@@ -103,7 +103,7 @@ if ($oldFontName.StartsWith($fontNameNoExt)) {
     $newHash = "<THE-LATEST-HASH-WILL-BE-INSERTED-HERE-BY-THE-HOST-WEBSITE>"
 
     if ($oldHash -eq $newHash) {
-        Write-Host "All good! You've already got the latest $fontName.`n" -ForegroundColor Green
+        Write-Host "`nAll good! You've already got the latest $fontName.`n" -ForegroundColor Green
         $shouldInstall = $false
     }
 }

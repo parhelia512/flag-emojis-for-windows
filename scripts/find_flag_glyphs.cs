@@ -28,20 +28,11 @@ foreach (var glyphPath in Directory.GetFiles(glyphsFolder)) {
 	}
 }
 
-string[] newCodepoints = [
-	"build/jdecked-twemoji/assets/svg/1faea.svg",
-	"build/jdecked-twemoji/assets/svg/1faef.svg",
-	"build/jdecked-twemoji/assets/svg/1fac8.svg",
-	"build/jdecked-twemoji/assets/svg/1facd.svg",
-	"build/jdecked-twemoji/assets/svg/1f6d8.svg",
-	"build/jdecked-twemoji/assets/svg/1fa8a.svg",
-	"build/jdecked-twemoji/assets/svg/1fa8e.svg",
-];
 
 // Add new 17.0 emojis if a flag is specified
 if (args.Length > 0 && args[0] == "--with-new-17.0") {
-	foreach (string path in newCodepoints) {
-		Console.Write(path);
-		Console.Write('\n');
-	}
+	string[] codepoints = ["1faea", "1faef", "1fac8", "1facd", "1f6d8", "1fa8a", "1fa8e"];
+    foreach (string cp in codepoints) {
+        Console.Write($"build/jdecked-twemoji/assets/svg/{cp}.svg\n");
+    }
 }

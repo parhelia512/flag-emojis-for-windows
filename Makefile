@@ -70,8 +70,9 @@ build: build/merged.ttf
 
 package: build/Segoe.UI.Emoji.with.Twemoji.Flags.zip
 
-FLAGS_PER_LINE ?= 16
 # Can be overriden with `make test FLAGS_PER_LINE=8`
+FLAGS_PER_LINE ?= 16
+
 test: build/tests/flags_$(FLAGS_PER_LINE).png build/tests/flags_$(FLAGS_PER_LINE)_bw.png
 
 test-vars:
@@ -158,6 +159,7 @@ build/svg-bw/.manifest: build/svg-color/.manifest
 		echo "$$changed" | xargs -n 1 -P "$(CPU_CORES)" sh -c '
 			bw=$(@D)/$${1##*/};
 			echo "Converting to B&W $${bw##*/}...";
+# Prevents random errors when running multiple Inkscapes in parallel:
 # https://gitlab.com/inkscape/inkscape/-/work_items/4716#note_1898150983
 			export SELF_CALL=xxx;
 
