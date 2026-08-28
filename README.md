@@ -77,7 +77,15 @@ Also, you can read my two blog posts on this project!
 
 ## Installation
 
-### Run the command below in PowerShell (Admin):
+### [Download the font](https://github.com/Chasmical/flag-emojis-for-windows/releases/latest/download/Segoe.UI.Emoji.with.Twemoji.Flags.ttf) and install it ***for all users***! Restart your PC to apply changes.
+
+![](./img/install-for-all-users.png)
+
+**"Install for all users" (recommended)** will attempt to render country flags in the system and many other apps too.
+
+Regular **"Install"** will only affect a few certain apps: Chromium-based browsers (Chrome, Opera, Vivaldi, etc), and Electron-based apps (Discord, VS Code, etc), so if that's enough for you, you can do this type of install.
+
+### Or, alternatively, run this command in PowerShell (Admin):
 
 ```sh
 irm https://chsm.dev/get-flag-emojis | iex
@@ -87,17 +95,9 @@ The installer script compares your font's SHA256 checksum with the latest one be
 
 <img src="./img/installing-with-the-script.png" width="582" height="432" />
 
-### Alternatively:
 
-You can [download the font](https://github.com/Chasmical/flag-emojis-for-windows/releases/latest/download/Segoe.UI.Emoji.with.Twemoji.Flags.ttf) directly and install it ***for all users***! Restart your PC to apply changes.
 
-![](./img/install-for-all-users.png)
-
-**"Install for all users" (recommended)** will attempt to render country flags in the system and many other apps too.
-
-Regular **"Install"** will only affect a few certain apps: Chromium-based browsers (Chrome, Opera, Vivaldi, etc), and Electron-based apps (Discord, VS Code, etc), so if that's enough for you, you can do this type of install.
-
-If both installation methods fail, please [open an issue](https://github.com/Chasmical/flag-emojis-for-windows/issues/new/choose)!
+### If both installation methods fail, please [open an issue](https://github.com/Chasmical/flag-emojis-for-windows/issues/new/choose)!
 
 
 
