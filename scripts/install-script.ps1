@@ -242,6 +242,16 @@ catch {
     Write-Error "An error occured when deleting old font files:`n$_" -ErrorAction Continue
 }
 
+# Attempt to remove the old version of this font (might fail, which is okay)
+try {
+    # Careful, don't delete the original seguiemj.ttf!
+    if ($oldFontName.StartsWith($fontNameNoExt)) {
+        Remove-Item $oldFontPath -Force
+        Write-Host "Cleaned up old $oldFontName."
+    }
+} catch {
+}
+
 
 
 if ($WaitForHost) { Write-Host "Press any key to exit..."; [System.Console]::ReadKey() }
