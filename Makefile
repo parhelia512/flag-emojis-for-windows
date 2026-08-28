@@ -214,14 +214,17 @@ build/twemoji.flags.bw/Font.ttx: build/twemoji.flags.bw/Font.ttf
 	@$(FONTTOOLS) ttx $<
 
 # Merge all the fonts into one
-build/merged.ttx: scripts/gen_merged_font.cs build/seguiemj.ttx build/twemoji.flags.color/Font.ttx build/twemoji.flags.bw/Font.ttx
+build/merged-pre.ttx: scripts/gen_merged_font.cs build/seguiemj.ttx build/twemoji.flags.color/Font.ttx build/twemoji.flags.bw/Font.ttx
 	@echo "Generating $@..."
 	@$(DOTNET) $^ $@
 
-build/merged.ttf: build/merged.ttx
+build/merged-pre.ttf: build/merged-pre.ttx
 	@rm -f $@
 	@echo "Recompiling $@..."
 	@$(FONTTOOLS) ttx $<
+
+build/merged.ttf: scripts/post_process_font.cs build/merged-pre.ttf $(wildcard notice.txt)
+	@$(DOTNET) $< $(word 2,$^) $@
 
 
 
