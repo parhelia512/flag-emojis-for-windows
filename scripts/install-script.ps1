@@ -95,6 +95,7 @@ $tempFontPath = Join-Path $env:TEMP $fontName
 
 
 $shouldInstall = $true
+$installedSuccessfully = $false
 
 # If it's obviously our modified font, then compare the hashes
 if ($oldFontName.StartsWith($fontNameNoExt)) {
@@ -199,6 +200,7 @@ public static class FontApi {
 
         Write-Host "`nThe $fontName was installed successfully!" -ForegroundColor Green
         Write-Host "Restart Windows to apply the changes everywhere (you can do it later)`n" -ForegroundColor DarkGreen
+        $installedSuccessfully = $true
     }
 }
 catch {
@@ -245,7 +247,7 @@ catch {
 # Attempt to remove the old version of this font (might fail, which is okay)
 try {
     # Careful, don't delete the original seguiemj.ttf!
-    if ($oldFontName.StartsWith($fontNameNoExt)) {
+    if ($installedSuccessfully -and $oldFontName.StartsWith($fontNameNoExt)) {
         Remove-Item $oldFontPath -Force
         Write-Host "Cleaned up old $oldFontName."
     }
